@@ -2,6 +2,19 @@
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
+/*
+ * NetworkConnection
+ * 
+ * The purpose of this file is to create instances of the TcpClient,
+ * establish it's reader and writer, and hold various methods to read
+ * and write lines between clients.
+ * 
+ * Authors: Sydney Burt, Levi Hammond
+ * Date: 3-22-2025
+ */
+
+using System.Net.Http;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 namespace CS3500.Networking;
@@ -65,8 +78,16 @@ public sealed class NetworkConnection : IDisposable
     {
         get
         {
-            // TODO: implement this
-            throw new NotImplementedException();
+            try // Use a try/catch statement to get the desired output, either with successfully connecting or throwing an exception.
+            {
+                _tcpClient.Connect(IPAddress.Any.ToString(), 10000); // Use the connect method to connect the instance of the socket to the server.
+                return true; // Return true if an exception is not thrown.
+            }
+            catch (Exception e) // Catches an exception if connection is unsuccessful and returns false.
+            {
+                return false;
+            }
+            //throw new NotImplementedException();
         }
     }
 
@@ -79,7 +100,15 @@ public sealed class NetworkConnection : IDisposable
     public void Connect( string host, int port )
     {
         // TODO: implement this
-        throw new NotImplementedException();
+        try
+        {
+            _tcpClient?.Connect(host, port);
+        }
+        catch (Exception e)
+        {
+            throw new SocketException();
+        }
+        //throw new NotImplementedException();
     }
 
 
@@ -95,7 +124,12 @@ public sealed class NetworkConnection : IDisposable
     public void Send( string message )
     {
         // TODO: Implement this
-        throw new NotImplementedException();
+        if (IsConnected == false) // Throws an exception if the socket is not connected yet.
+        {
+            throw new InvalidOperationException();
+        }
+        _writer.WriteLineAsync(message + "\n"); // Sends a message with a new line at the end through the writer.
+        //throw new NotImplementedException();
     }
 
 
@@ -109,18 +143,25 @@ public sealed class NetworkConnection : IDisposable
     public string ReadLine( )
     {
         // TODO: implement this
-        throw new NotImplementedException();
-
+        if (IsConnected == false) // Throws an exception if the socket is not connected yet.
+        {
+            throw new InvalidOperationException();
+        }
+        return _reader.ReadLine(); // Reads the message from the other side of the connection.
+        //throw new NotImplementedException();
     }
 
     /// <summary>
     ///   If connected, disconnect the connection and clean 
     ///   up (dispose) any streams.
     /// </summary>
-    public void Disconnect( )
+    public void Disconnect()
     {
-        //TODO: implement this
-        throw new NotImplementedException();
+        if (IsConnected == true) // If the socket is not connected, it will not call Close and throw an error.
+        {
+            _tcpClient.Close(); // Disposes of this instance of _tcpClient and disposes of its contents.
+        }
+        //throw new NotImplementedException();
     }
 
     /// <summary>
