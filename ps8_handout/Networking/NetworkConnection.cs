@@ -10,7 +10,7 @@
  * and write lines between clients.
  * 
  * Authors: Sydney Burt, Levi Hammond
- * Date: 3-22-2025    
+ * Date: 3-22-2025
  */
 
 using System.Net.Http;
