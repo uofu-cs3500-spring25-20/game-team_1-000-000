@@ -76,18 +76,7 @@ public sealed class NetworkConnection : IDisposable
     /// </summary>
     public bool IsConnected
     {
-        get
-        {
-            try // Use a try/catch statement to get the desired output, either with successfully connecting or throwing an exception.
-            {
-                _tcpClient.Connect(IPAddress.Any.ToString(), 10000); // Use the connect method to connect the instance of the socket to the server.
-                return true; // Return true if an exception is not thrown.
-            }
-            catch (Exception) // Catches an exception if connection is unsuccessful and returns false.
-            {
-                return false;
-            }
-        }
+        get { return _tcpClient.Connected; }
     }
 
     /// <summary>
@@ -97,7 +86,6 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="port"> The port, e.g., 11000. </param>
     public void Connect( string host, int port )
     {
-        _tcpClient.Connect( host, port );
         try
         {
             _tcpClient?.Connect(host, port);
@@ -123,7 +111,7 @@ public sealed class NetworkConnection : IDisposable
         {
             throw new InvalidOperationException();
         }
-        _writer!.WriteLineAsync(message + "\n"); // Sends a message with a new line at the end through the writer.
+        _writer!.WriteLineAsync(message); // Sends a message with a new line at the end through the writer.
     }
 
 

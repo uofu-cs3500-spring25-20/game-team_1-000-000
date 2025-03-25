@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 
@@ -15,7 +16,7 @@ namespace CS3500.Networking;
 /// </summary>
 public static class Server
 {
-
+    private static List<StreamWriter> clients = new();
     /// <summary>
     ///   Wait on a TcpListener for new connections. Alert the main program
     ///   via a callback (delegate) mechanism.
