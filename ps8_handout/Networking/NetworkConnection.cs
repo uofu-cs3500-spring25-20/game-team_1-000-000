@@ -49,6 +49,7 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="tcpClient">
     ///   An already existing TcpClient
     /// </param>
+    /// This was given to us by the professor
     public NetworkConnection( TcpClient tcpClient )
     {
         _tcpClient = tcpClient;
@@ -66,6 +67,7 @@ public sealed class NetworkConnection : IDisposable
     ///     Create a network connection object.  The tcpClient will be unconnected at the start.
     ///   </para>
     /// </summary>
+    /// This was given to us by the professors. 
     public NetworkConnection( )
         : this( new TcpClient( ) )
     {
@@ -80,7 +82,7 @@ public sealed class NetworkConnection : IDisposable
         {
             try // Use a try/catch statement to get the desired output, either with successfully connecting or throwing an exception.
             {
-                _tcpClient.Connect(IPAddress.Any.ToString(), 10000); // Use the connect method to connect the instance of the socket to the server.
+                _tcpClient.Connect(IPAddress.Any.ToString(), 11000); // Use the connect method to connect the instance of the socket to the server.
                 return true; // Return true if an exception is not thrown.
             }
             catch (Exception) // Catches an exception if connection is unsuccessful and returns false.
@@ -97,12 +99,11 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="port"> The port, e.g., 11000. </param>
     public void Connect( string host, int port )
     {
-        _tcpClient.Connect( host, port );
         try
         {
-            _tcpClient?.Connect(host, port);
+            _tcpClient.Connect(host, port);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             throw new SocketException();
         }
@@ -117,6 +118,7 @@ public sealed class NetworkConnection : IDisposable
     ///   connected), throw an InvalidOperationException.
     /// </summary>
     /// <param name="message"> The string of characters to send. </param>
+    /// LOOK AT THIS FOR CHATSERVER
     public void Send( string message )
     {
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
@@ -134,9 +136,9 @@ public sealed class NetworkConnection : IDisposable
     ///   connected), throw an InvalidOperationException.
     /// </summary>
     /// <returns> The contents of the message. </returns>
+    /// LOOK AT THIS FOR CHATSERVER
     public string ReadLine( )
     {
-        // TODO: implement this
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
         {
             throw new InvalidOperationException();

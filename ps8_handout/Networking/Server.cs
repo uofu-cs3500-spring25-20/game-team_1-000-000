@@ -15,6 +15,7 @@ namespace CS3500.Networking;
 /// </summary>
 public static class Server
 {
+    private static List<StreamWriter> clients = new();
 
     /// <summary>
     ///   Wait on a TcpListener for new connections. Alert the main program
@@ -30,6 +31,12 @@ public static class Server
         TcpListener listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
         TcpClient c = listener.AcceptTcpClient();
+        
+        //Run demo code in a testing respository to see how it works?
+        //need a method that we can pass into the action delegate
+        //How to connect the handleConnect to the rest of the code?
+        //How to connect StartServer to NetworkConnection?
+
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();
@@ -41,7 +48,6 @@ public static class Server
             {
                 clients.Add(w);
             }
-            Console.WriteLine("accepted a connection");
             new Thread(() => HandleClient(client)).Start();
         }
     }
