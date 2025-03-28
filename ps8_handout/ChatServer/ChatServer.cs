@@ -3,6 +3,7 @@
 // </copyright>
 
 using CS3500.Networking;
+using System.Data;
 using System.Net.Sockets;
 using System.Text;
 
@@ -15,21 +16,14 @@ public partial class ChatServer
 {
     static List<NetworkConnection> connectionList = new List<NetworkConnection>();
 
-    static Dictionary<NetworkConnection, string> userNames = new Dictionary<NetworkConnection, string>();
-
-    static int sendCount;
-
-    static string name = "";
-
-    static NetworkConnection c;
     /// <summary>
     ///   The main program.
     /// </summary>
     /// <param name="args"> ignored. </param>
     /// <returns> A Task. Not really used. </returns>
-    private static void Main( string[] args )
+    private static void Main(string[] args)
     {
-        Server.StartServer( HandleConnect, 11_000 );
+        Server.StartServer(HandleConnect, 11_000);
         Console.Read(); // don't stop the program.
     }
 
@@ -40,41 +34,48 @@ public partial class ChatServer
     ///   </pre>
     /// </summary>
     ///
-    private static void HandleConnect( NetworkConnection connection )
+    private static void HandleConnect(NetworkConnection connection)
     {
-        connectionList.Add(connection);
-        sendCount = 0;
-        StreamReader r = new StreamReader(connection.GetTcpClient().GetStream(), Encoding.UTF8);
+
+        if (!connectionList.Contains(connection))
+        {
+            connectionList.Add(connection);
+        }
+
+        // LISTEN
+
+        // Send a message to all of the connected sockets.
 
         // handle all messages until disconnect.
+
+        // make a list of all the connected sockets.
+
+        string name = null;
+
         try
         {
-            while ( true )
+            while (true)
             {
-                string? message = r.ReadLine( );
-                if (sendCount < 1)
+                var message = connection.ReadLine();
+
+                if (name == null)
                 {
-                    name = message!;
-                    c = connection;
-                    userNames.Add(c, message!);
+                    name = message;
+                    userNames.Add(name, connection);
+                    continue;
                 }
-                lock (connection)
+
+                foreach (NetworkConnection socket in connectionList)
                 {
-                    foreach (NetworkConnection socket in connectionList)
-                    {
-                        socket.Send(userNames[c].ToString() + " " + message!);
-                    }
+                    socket.Send(name + ": " + message);
                 }
-                sendCount++;
+                
             }
         }
-        catch ( Exception )
+        catch (Exception)
         {
-            foreach (NetworkConnection socket in connectionList)
-            {
-                if (!socket.IsConnected)
-                    connectionList.Remove(socket);
-            }
+            //connection.Send("This connection is not possible.");
+            userNames.Remove(name);
         }
     }
 }
