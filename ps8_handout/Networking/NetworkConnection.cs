@@ -96,7 +96,7 @@ public sealed class NetworkConnection : IDisposable
         }
         catch (Exception)
         {
-            TcpClient tcpClient = new TcpClient( host, port );
+            throw new SocketException();
         }
     }
 
