@@ -2,6 +2,16 @@
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
+// Server
+//
+// The purpose of this file is to set up a server task that 
+// waits for connections. The server then calls the given delegate
+// when a connection is made so the message can be sent to all
+// necessary connections.
+// 
+// Authors: Sydney Burt, Levi Hammond
+// Date: 3-28-2025
+
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -16,6 +26,7 @@ namespace CS3500.Networking;
 /// </summary>
 public static class Server
 {
+    //A list to keep track of all the connected clients.
     private static List<StreamWriter> clients = new();
 
     /// <summary>
@@ -29,11 +40,13 @@ public static class Server
     /// <param name="port"> The port (e.g., 11000) to listen on. </param>
     public static void StartServer( Action<NetworkConnection> handleConnect, int port )
     {
+        //Listens for a new connection 
         TcpListener listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
 
         while (true)
         {
+            //Listener accepts a new client
             TcpClient client = listener.AcceptTcpClient();
             StreamWriter w = new StreamWriter(client.GetStream(), Encoding.UTF8)
             {
@@ -43,7 +56,9 @@ public static class Server
             {
                 clients.Add(w);
             }
+            //Creates a new network connection for the client so the provided delegate can be called.
             NetworkConnection nc = new NetworkConnection(client);
+            //Calls the provided delegate when a connection is made.
             new Thread(() => handleConnect(nc)).Start();
         }
     }

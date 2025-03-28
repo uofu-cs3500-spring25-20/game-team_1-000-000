@@ -2,16 +2,14 @@
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
-/*
- * NetworkConnection
- * 
- * The purpose of this file is to create instances of the TcpClient,
- * establish it's reader and writer, and hold various methods to read
- * and write lines between clients.
- * 
- * Authors: Sydney Burt, Levi Hammond
- * Date: 3-28-2025
- */
+// NetworkConnection
+//
+// The purpose of this file is to create instances of the TcpClient,
+// establish it's reader and writer, and hold various methods to read
+// and write lines between clients.
+// 
+// Authors: Sydney Burt, Levi Hammond
+// Date: 3-28-2025
 
 using System.Net.Http;
 using System.Net;
@@ -124,7 +122,6 @@ public sealed class NetworkConnection : IDisposable
         }
     }
 
-
     /// <summary>
     ///   Read a message from the remote side of the connection.  The message will contain
     ///   all characters up to the first new line. See <see cref="Send"/>.
@@ -166,9 +163,9 @@ public sealed class NetworkConnection : IDisposable
     }
 
     /// <summary>
-    /// 
+    ///   Returns the TcpClient as a part of the given network connection.
     /// </summary>
-    /// <returns></returns>
+    /// <returns> The given TcpClient. </returns>
     public TcpClient GetClient()
     {
         return this._tcpClient;

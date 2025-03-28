@@ -2,6 +2,15 @@
 // Copyright (c) 2024 UofU-CS3500. All rights reserved.
 // </copyright>
 
+// ChatServer
+//
+// The purpose of this file is to set up a chat server that handles each client separately.
+// When one connected member sends a message, everyone in the chat gets the message.
+// When a member disconnects, they can no longer receive or send messages. 
+// 
+// Authors: Sydney Burt, Levi Hammond
+// Date: 3-28-2025
+
 using CS3500.Networking;
 using System.Data;
 using System.Net.Sockets;
@@ -14,8 +23,10 @@ namespace CS3500.Chatting;
 /// </summary>
 public partial class ChatServer
 {
+    //A list to keep track of all the connections.
     static List<NetworkConnection> connectionList = new List<NetworkConnection>();
 
+    //A list to keep track of the names of each chat member/connection.
     static Dictionary<string, NetworkConnection> userNames = new Dictionary<string, NetworkConnection>();
 
     /// <summary>
@@ -38,19 +49,23 @@ public partial class ChatServer
     ///
     private static void HandleConnect(NetworkConnection connection)
     {
+        //Only adds the connection to the list if it is a new connection
         if (!connectionList.Contains(connection))
         {
             connectionList.Add(connection);
         }
         
+        //Create a variable to hold the name of the chat member/connection.
         string? name = null;
         
         try
         {
             while (true)
             {
+                //Read the message from the chat member.
                 var message = connection.ReadLine();
 
+                //If the chat member is new, the first thing they type and submit is their chat name.
                 if (name == null)
                 {
                     name = message;
@@ -58,15 +73,16 @@ public partial class ChatServer
                     continue;
                 }
 
+                //Send the message (and the chat member's name) to every connected single chat member.
                 foreach (NetworkConnection socket in connectionList)
                 {
                     socket.Send(name + ": " + message);
                 }
-                
             }
         }
         catch (Exception)
         {
+            //If the chat member has disconnected from the chat, remove them from the dictionary.
             userNames.Remove(name!);
         }
     }
