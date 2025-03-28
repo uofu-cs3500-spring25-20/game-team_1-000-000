@@ -52,6 +52,7 @@ public sealed class NetworkConnection : IDisposable
     /// This was given to us by the professors.
     public NetworkConnection( TcpClient tcpClient )
     {
+        _tcpClient = tcpClient;
         if ( IsConnected )
         {
             // Only establish the reader/writer if the provided TcpClient is already connected.
@@ -169,6 +170,6 @@ public sealed class NetworkConnection : IDisposable
     /// <returns></returns>
     public TcpClient GetTcpClient()
     { 
-        return _tcpClient; 
+        return this._tcpClient; 
     }
 }

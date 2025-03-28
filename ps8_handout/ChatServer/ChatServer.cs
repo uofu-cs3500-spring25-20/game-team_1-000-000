@@ -15,6 +15,13 @@ public partial class ChatServer
 {
     static List<NetworkConnection> connectionList = new List<NetworkConnection>();
 
+    static Dictionary<NetworkConnection, string> userNames = new Dictionary<NetworkConnection, string>();
+
+    static int sendCount;
+
+    static string name = "";
+
+    static NetworkConnection c;
     /// <summary>
     ///   The main program.
     /// </summary>
@@ -36,6 +43,7 @@ public partial class ChatServer
     private static void HandleConnect( NetworkConnection connection )
     {
         connectionList.Add(connection);
+        sendCount = 0;
         StreamReader r = new StreamReader(connection.GetTcpClient().GetStream(), Encoding.UTF8);
 
         // handle all messages until disconnect.
@@ -43,19 +51,30 @@ public partial class ChatServer
         {
             while ( true )
             {
-               string? message = r.ReadLine( );
+                string? message = r.ReadLine( );
+                if (sendCount < 1)
+                {
+                    name = message!;
+                    c = connection;
+                    userNames.Add(c, message!);
+                }
                 lock (connection)
                 {
                     foreach (NetworkConnection socket in connectionList)
                     {
-                        socket.Send(message!);
+                        socket.Send(userNames[c].ToString() + " " + message!);
                     }
                 }
+                sendCount++;
             }
         }
         catch ( Exception )
         {
-            // do anything necessary to handle a disconnected client in here
+            foreach (NetworkConnection socket in connectionList)
+            {
+                if (!socket.IsConnected)
+                    connectionList.Remove(socket);
+            }
         }
     }
 }
