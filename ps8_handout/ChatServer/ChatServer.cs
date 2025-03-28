@@ -3,6 +3,7 @@
 // </copyright>
 
 using CS3500.Networking;
+using System.Net.Sockets;
 using System.Text;
 
 namespace CS3500.Chatting;
@@ -12,6 +13,7 @@ namespace CS3500.Chatting;
 /// </summary>
 public partial class ChatServer
 {
+    static List<NetworkConnection> connectionList = new List<NetworkConnection>();
 
     /// <summary>
     ///   The main program.
@@ -24,7 +26,6 @@ public partial class ChatServer
         Console.Read(); // don't stop the program.
     }
 
-
     /// <summary>
     ///   <pre>
     ///     When a new connection is established, enter a loop that receives from and
@@ -34,14 +35,22 @@ public partial class ChatServer
     ///
     private static void HandleConnect( NetworkConnection connection )
     {
+        connectionList.Add(connection);
+        StreamReader r = new StreamReader(connection.GetTcpClient().GetStream(), Encoding.UTF8);
+
         // handle all messages until disconnect.
         try
         {
             while ( true )
             {
-                var message = connection.ReadLine( );
-
-                connection.Send( "thanks!" );
+               string? message = r.ReadLine( );
+                lock (connection)
+                {
+                    foreach (NetworkConnection socket in connectionList)
+                    {
+                        socket.Send(message!);
+                    }
+                }
             }
         }
         catch ( Exception )

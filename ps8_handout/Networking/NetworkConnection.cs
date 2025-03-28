@@ -49,7 +49,7 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="tcpClient">
     ///   An already existing TcpClient
     /// </param>
-    /// This was given to us by the professor
+    /// This was given to us by the professors.
     public NetworkConnection( TcpClient tcpClient )
     {
         _tcpClient = tcpClient;
@@ -90,7 +90,10 @@ public sealed class NetworkConnection : IDisposable
     {
         try
         {
+            _tcpClient = new TcpClient();
             _tcpClient.Connect(host, port);
+            _reader = new StreamReader(_tcpClient.GetStream(), Encoding.UTF8);
+            _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
         }
         catch (Exception)
         {
@@ -107,10 +110,13 @@ public sealed class NetworkConnection : IDisposable
     ///   connected), throw an InvalidOperationException.
     /// </summary>
     /// <param name="message"> The string of characters to send. </param>
-    /// LOOK AT THIS FOR CHATSERVER
     public void Send( string message )
     {
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
+        {
+            throw new InvalidOperationException();
+        }
+        else if (_writer == null)
         {
             throw new InvalidOperationException();
         }
@@ -125,10 +131,13 @@ public sealed class NetworkConnection : IDisposable
     ///   connected), throw an InvalidOperationException.
     /// </summary>
     /// <returns> The contents of the message. </returns>
-    /// LOOK AT THIS FOR CHATSERVER
     public string ReadLine( )
     {
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
+        {
+            throw new InvalidOperationException();
+        }
+        else if (_reader == null)
         {
             throw new InvalidOperationException();
         }
@@ -153,5 +162,14 @@ public sealed class NetworkConnection : IDisposable
     public void Dispose( )
     {
         Disconnect();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public TcpClient GetTcpClient()
+    { 
+        return _tcpClient; 
     }
 }

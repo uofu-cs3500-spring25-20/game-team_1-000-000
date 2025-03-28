@@ -30,12 +30,6 @@ public static class Server
     {
         TcpListener listener = new TcpListener(IPAddress.Any, port);
         listener.Start();
-        TcpClient c = listener.AcceptTcpClient();
-        
-        //Run demo code in a testing respository to see how it works?
-        //need a method that we can pass into the action delegate
-        //How to connect the handleConnect to the rest of the code?
-        //How to connect StartServer to NetworkConnection?
 
         while (true)
         {
@@ -48,34 +42,8 @@ public static class Server
             {
                 clients.Add(w);
             }
-            new Thread(() => HandleClient(client)).Start();
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="client"></param>
-    public static void HandleClient(TcpClient client)
-    {
-        StreamReader r = new StreamReader(client.GetStream(), Encoding.UTF8);
-        while (true)
-        {
-            try
-            {
-                string? message = r.ReadLine(); 
-                lock (clients)
-                {
-                    foreach (StreamWriter w in clients)
-                    {
-                        w.WriteLine(message);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            NetworkConnection nc = new NetworkConnection(client);
+            new Thread(() => handleConnect(nc)).Start();
         }
     }
 }
