@@ -3,6 +3,7 @@
 // </copyright>
 
 using CS3500.Networking;
+using System.Data;
 using System.Net.Sockets;
 using System.Text;
 
@@ -14,15 +15,16 @@ namespace CS3500.Chatting;
 public partial class ChatServer
 {
     static List<NetworkConnection> connectionList = new List<NetworkConnection>();
-
+    static Dictionary<NetworkConnection, string> userNames = new Dictionary<NetworkConnection, string>();
+    static int sendCount;
     /// <summary>
     ///   The main program.
     /// </summary>
     /// <param name="args"> ignored. </param>
     /// <returns> A Task. Not really used. </returns>
-    private static void Main( string[] args )
+    private static void Main(string[] args)
     {
-        Server.StartServer( HandleConnect, 11_000 );
+        Server.StartServer(HandleConnect, 11_000);
         Console.Read(); // don't stop the program.
     }
 
@@ -33,29 +35,50 @@ public partial class ChatServer
     ///   </pre>
     /// </summary>
     ///
-    private static void HandleConnect( NetworkConnection connection )
+    private static void HandleConnect(NetworkConnection connection)
     {
-        connectionList.Add(connection);
-        StreamReader r = new StreamReader(connection.GetTcpClient().GetStream(), Encoding.UTF8);
+
+        // make a list of all the connected sockets.
+
+        if (!connectionList.Contains(connection))
+        {
+            connectionList.Add(connection);
+            sendCount = 0;
+        }
+
+        // LISTEN
+
+        StreamReader r = new StreamReader(connection.GetClient().GetStream(), Encoding.UTF8);
+
+        // Send a message to all of the connected sockets.
 
         // handle all messages until disconnect.
+
         try
         {
-            while ( true )
+            while (true)
             {
-               string? message = r.ReadLine( );
-                lock (connection)
+                var message = r.ReadLine();
+
+
+                foreach (NetworkConnection socket in connectionList)
                 {
-                    foreach (NetworkConnection socket in connectionList)
+                    if (!userNames.ContainsKey(socket))
                     {
-                        socket.Send(message!);
+                        userNames.Add(socket, message);
+                    }
+                    else
+                    {
+                        string name;
+                        userNames.TryGetValue(socket, out name);
+                        socket.Send(name + ": " + message);
                     }
                 }
             }
         }
-        catch ( Exception )
+        catch (Exception)
         {
-            // do anything necessary to handle a disconnected client in here
+            //connection.Send("This connection is not possible.");
         }
     }
 }

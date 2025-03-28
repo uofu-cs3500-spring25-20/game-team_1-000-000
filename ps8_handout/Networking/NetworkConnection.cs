@@ -40,6 +40,8 @@ public sealed class NetworkConnection : IDisposable
     /// </summary>
     private StreamWriter? _writer = null;
 
+    //public List<NetworkConnection> connectionList = new List<NetworkConnection>();
+
     /// <summary>
     ///   Initializes a new instance of the <see cref="NetworkConnection"/> class.
     ///   <para>
@@ -49,14 +51,14 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="tcpClient">
     ///   An already existing TcpClient
     /// </param>
-    /// This was given to us by the professors.
-    public NetworkConnection( TcpClient tcpClient )
+    public NetworkConnection(TcpClient tcpClient)
     {
-        if ( IsConnected )
+        _tcpClient = tcpClient;
+        if (IsConnected)
         {
             // Only establish the reader/writer if the provided TcpClient is already connected.
-            _reader = new StreamReader( _tcpClient.GetStream(), Encoding.UTF8 );
-            _writer = new StreamWriter( _tcpClient.GetStream(), Encoding.UTF8 ) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
+            _reader = new StreamReader(_tcpClient.GetStream(), Encoding.UTF8);
+            _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
         }
     }
 
@@ -66,9 +68,8 @@ public sealed class NetworkConnection : IDisposable
     ///     Create a network connection object.  The tcpClient will be unconnected at the start.
     ///   </para>
     /// </summary>
-    /// This was given to us by the professors. 
-    public NetworkConnection( )
-        : this( new TcpClient( ) )
+    public NetworkConnection()
+        : this(new TcpClient())
     {
     }
 
@@ -85,7 +86,7 @@ public sealed class NetworkConnection : IDisposable
     /// </summary>
     /// <param name="host"> The URL or IP address, e.g., www.cs.utah.edu, or  127.0.0.1. </param>
     /// <param name="port"> The port, e.g., 11000. </param>
-    public void Connect( string host, int port )
+    public void Connect(string host, int port)
     {
         try
         {
@@ -93,10 +94,11 @@ public sealed class NetworkConnection : IDisposable
             _tcpClient.Connect(host, port);
             _reader = new StreamReader(_tcpClient.GetStream(), Encoding.UTF8);
             _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
+            //connectionList.Add(NetworkConnection(_tcpClient));
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            TcpClient tcpClient = new TcpClient( host, port );
+            throw new SocketException();
         }
     }
 
@@ -109,7 +111,7 @@ public sealed class NetworkConnection : IDisposable
     ///   connected), throw an InvalidOperationException.
     /// </summary>
     /// <param name="message"> The string of characters to send. </param>
-    public void Send( string message )
+    public void Send(string message)
     {
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
         {
@@ -119,7 +121,10 @@ public sealed class NetworkConnection : IDisposable
         {
             throw new InvalidOperationException();
         }
-        _writer!.WriteLineAsync(message); // Sends a message with a new line at the end through the writer.
+        else if (message != null)
+        {
+            _writer!.WriteLineAsync(message); // Sends a message with a new line at the end through the writer.
+        }
     }
 
 
@@ -130,8 +135,9 @@ public sealed class NetworkConnection : IDisposable
     ///   connected), throw an InvalidOperationException.
     /// </summary>
     /// <returns> The contents of the message. </returns>
-    public string ReadLine( )
+    public string ReadLine()
     {
+        // TODO: implement this
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
         {
             throw new InvalidOperationException();
@@ -158,7 +164,7 @@ public sealed class NetworkConnection : IDisposable
     /// <summary>
     ///   Automatically called with a using statement (see IDisposable)
     /// </summary>
-    public void Dispose( )
+    public void Dispose()
     {
         Disconnect();
     }
@@ -167,8 +173,8 @@ public sealed class NetworkConnection : IDisposable
     /// 
     /// </summary>
     /// <returns></returns>
-    public TcpClient GetTcpClient()
-    { 
-        return _tcpClient; 
+    public TcpClient GetClient()
+    {
+        return this._tcpClient;
     }
 }
