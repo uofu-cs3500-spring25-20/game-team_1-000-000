@@ -16,6 +16,8 @@ public partial class ChatServer
 {
     static List<NetworkConnection> connectionList = new List<NetworkConnection>();
 
+    static Dictionary<string, NetworkConnection> userNames = new Dictionary<string, NetworkConnection>();
+
     /// <summary>
     ///   The main program.
     /// </summary>
@@ -36,22 +38,13 @@ public partial class ChatServer
     ///
     private static void HandleConnect(NetworkConnection connection)
     {
-
         if (!connectionList.Contains(connection))
         {
             connectionList.Add(connection);
         }
-
-        // LISTEN
-
-        // Send a message to all of the connected sockets.
-
-        // handle all messages until disconnect.
-
-        // make a list of all the connected sockets.
-
-        string name = null;
-
+        
+        string? name = null;
+        
         try
         {
             while (true)
@@ -74,8 +67,7 @@ public partial class ChatServer
         }
         catch (Exception)
         {
-            //connection.Send("This connection is not possible.");
-            userNames.Remove(name);
+            userNames.Remove(name!);
         }
     }
 }

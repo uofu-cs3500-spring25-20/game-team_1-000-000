@@ -10,7 +10,7 @@
  * and write lines between clients.
  * 
  * Authors: Sydney Burt, Levi Hammond
- * Date: 3-22-2025
+ * Date: 3-28-2025
  */
 
 using System.Net.Http;
@@ -39,8 +39,6 @@ public sealed class NetworkConnection : IDisposable
     ///   Writing end of the connection
     /// </summary>
     private StreamWriter? _writer = null;
-
-    //public List<NetworkConnection> connectionList = new List<NetworkConnection>();
 
     /// <summary>
     ///   Initializes a new instance of the <see cref="NetworkConnection"/> class.
@@ -94,9 +92,8 @@ public sealed class NetworkConnection : IDisposable
             _tcpClient.Connect(host, port);
             _reader = new StreamReader(_tcpClient.GetStream(), Encoding.UTF8);
             _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
-            //connectionList.Add(NetworkConnection(_tcpClient));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             throw new SocketException();
         }
@@ -137,7 +134,6 @@ public sealed class NetworkConnection : IDisposable
     /// <returns> The contents of the message. </returns>
     public string ReadLine()
     {
-        // TODO: implement this
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
         {
             throw new InvalidOperationException();
