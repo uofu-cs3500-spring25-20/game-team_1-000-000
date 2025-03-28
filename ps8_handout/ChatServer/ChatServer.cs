@@ -15,8 +15,7 @@ namespace CS3500.Chatting;
 public partial class ChatServer
 {
     static List<NetworkConnection> connectionList = new List<NetworkConnection>();
-    static Dictionary<NetworkConnection, string> userNames = new Dictionary<NetworkConnection, string>();
-    static int sendCount;
+    static Dictionary<string, NetworkConnection> userNames = new Dictionary<string, NetworkConnection>();
     /// <summary>
     ///   The main program.
     /// </summary>
@@ -38,47 +37,45 @@ public partial class ChatServer
     private static void HandleConnect(NetworkConnection connection)
     {
 
-        // make a list of all the connected sockets.
-
         if (!connectionList.Contains(connection))
         {
             connectionList.Add(connection);
-            sendCount = 0;
         }
 
         // LISTEN
-
-        StreamReader r = new StreamReader(connection.GetClient().GetStream(), Encoding.UTF8);
 
         // Send a message to all of the connected sockets.
 
         // handle all messages until disconnect.
 
+        // make a list of all the connected sockets.
+
+        string name = null;
+
         try
         {
             while (true)
             {
-                var message = r.ReadLine();
+                var message = connection.ReadLine();
 
+                if (name == null)
+                {
+                    name = message;
+                    userNames.Add(name, connection);
+                    continue;
+                }
 
                 foreach (NetworkConnection socket in connectionList)
                 {
-                    if (!userNames.ContainsKey(socket))
-                    {
-                        userNames.Add(socket, message);
-                    }
-                    else
-                    {
-                        string name;
-                        userNames.TryGetValue(socket, out name);
-                        socket.Send(name + ": " + message);
-                    }
+                    socket.Send(name + ": " + message);
                 }
+                
             }
         }
         catch (Exception)
         {
             //connection.Send("This connection is not possible.");
+            userNames.Remove(name);
         }
     }
 }
