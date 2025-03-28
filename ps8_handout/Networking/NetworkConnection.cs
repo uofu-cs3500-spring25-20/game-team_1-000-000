@@ -51,7 +51,6 @@ public sealed class NetworkConnection : IDisposable
     /// </param>
     public NetworkConnection( TcpClient tcpClient )
     {
-        _tcpClient = tcpClient;
         if ( IsConnected )
         {
             // Only establish the reader/writer if the provided TcpClient is already connected.
@@ -86,13 +85,21 @@ public sealed class NetworkConnection : IDisposable
     /// <param name="port"> The port, e.g., 11000. </param>
     public void Connect( string host, int port )
     {
-        try
+        //try
+        //{
+        //    _tcpClient = new TcpClient();
+        //    _tcpClient.Connect(host, port);
+        //    _reader = new StreamReader(_tcpClient.GetStream(), Encoding.UTF8);
+        //    _writer = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8) { AutoFlush = true }; // AutoFlush ensures data is sent immediately
+        //}
+        //catch (Exception e)
+        //{
+        //    throw new SocketException();
+        //}
+
+        if (IsConnected) 
         {
-            _tcpClient?.Connect(host, port);
-        }
-        catch (Exception e)
-        {
-            throw new SocketException();
+            TcpClient tcpClient = new TcpClient( host, port );
         }
     }
 
@@ -111,6 +118,10 @@ public sealed class NetworkConnection : IDisposable
         {
             throw new InvalidOperationException();
         }
+        else if (_writer == null)
+        {
+            throw new InvalidOperationException();
+        }
         _writer!.WriteLineAsync(message); // Sends a message with a new line at the end through the writer.
     }
 
@@ -126,6 +137,10 @@ public sealed class NetworkConnection : IDisposable
     {
         // TODO: implement this
         if (IsConnected == false) // Throws an exception if the socket is not connected yet.
+        {
+            throw new InvalidOperationException();
+        }
+        else if (_reader == null)
         {
             throw new InvalidOperationException();
         }

@@ -43,34 +43,6 @@ public static class Server
                 clients.Add(w);
             }
             Console.WriteLine("accepted a connection");
-            new Thread(() => HandleClient(client)).Start();
-        }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="client"></param>
-    public static void HandleClient(TcpClient client)
-    {
-        StreamReader r = new StreamReader(client.GetStream(), Encoding.UTF8);
-        while (true)
-        {
-            try
-            {
-                string? message = r.ReadLine(); 
-                lock (clients)
-                {
-                    foreach (StreamWriter w in clients)
-                    {
-                        w.WriteLine(message);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return;
-            }
         }
     }
 }
